@@ -1,0 +1,27 @@
+
+clear serial;
+serial = serialport("COM3", 9600);
+
+sprintf('?90,90,90,90.');
+servo1val = 90;
+servo2val = 90;
+servo3val = 90;
+servo4val = 90;
+
+while true
+%set data inputs here
+% servo1val;
+% servo2val;
+% servo3val;
+% servo4val;
+
+%turns them into strings then a single string
+strformat = "%d,%d,%d,%d.";
+str = sprintf(strformat,servo1val,servo2val,servo3val,servo4val);
+
+
+%fire into the aether
+
+write(serial, str,"string")
+pause(.15);%to avoid buffer overflow
+end
