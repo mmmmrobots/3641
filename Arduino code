@@ -1,0 +1,127 @@
+#include <Servo.h>
+
+Servo servo0;
+Servo servo1;
+Servo servo2;
+Servo servo3;
+
+
+char strIn[50];
+char *subStr1;//3 digit plus null char, data for turn angle
+char *subStr2;//4 digit plus null char, for drive values in uS
+char *subStr3;//
+char *subStr4;
+//***************
+//parse string takes the input string and converts it to the substrings
+//inputs: strIn
+//outputs: subStr(1-n)
+//***************
+
+void parseString(){
+const char *delim1 = ",";
+const char *delim2 = ".";
+  subStr1 = strtok(strIn, delim1);
+Serial.print ("substring1=");
+Serial.println(subStr1);
+  subStr2 = strtok(NULL, delim1);
+Serial.print ("substring2=");
+Serial.println(subStr2);
+  subStr3 = strtok(NULL, delim1);
+Serial.print ("substring3=");
+Serial.println(subStr3);
+  subStr4 = strtok(NULL, delim2);
+ Serial.print ("substring4=");
+Serial.println(subStr4);
+}
+
+
+//int stringsToInts(){
+//  steerAngle = atoi(subStr1);
+//  Sm.write(steerAngle);
+//  LWD = atoi(subStr2);
+//  Lm.writeMicroseconds(subStr2);
+//  RWD = atoi(subStr3);
+//  Rm.writeMicroseconds(subStr3);
+//}
+
+
+
+//**************
+//grabs string from bluetooth to strIn
+//returns true on success and false on no data available.
+//doesnt change input if no data ready
+//**************
+bool captureString(){
+  int i = 0;
+  char inchar = '1';//was zero
+  //Serial.println("awaiting '?'");
+
+
+
+if (Serial.available() < 13){
+  
+  return false;
+  Serial.println("no");
+}
+  
+
+
+  while(inchar != '?' && Serial.available()>12)//waits for terminating char
+  {
+    inchar = Serial.read();
+    //Serial.println(inchar);
+    //do nothing lol. its a wait function using Serial.read will skip through the 
+    //recieved buffer until nullchar caught 
+  }
+
+delay(10);
+  bool nullchar = false;
+  //Serial.println("begin parsing");
+  while(nullchar == false && Serial.available())
+  {
+    
+    inchar = Serial.read();//write char to string
+    //Serial.println(inchar);
+    strIn[i] = inchar;
+    //delay(15);//was 30
+    if(inchar == '.'){
+      strIn[i] = 0;//replaces '.'w/nullchar for string printing
+      //Serial.println(strIn);
+      //Serial.println(inchar);
+      
+      return (true);
+      
+    }
+    i = i+1; 
+    
+  }
+  return true;
+}
+
+
+
+
+void setup() {
+  // put your setup code here, to run once:
+  servo0.attach(3);
+  servo1.attach(5);
+  servo2.attach(6);
+  servo3.attach(9);
+  
+  int servo0pos = 0;
+  int servo2pos = 0;
+  int servo3pos = 0;
+  int servo4pos = 0;
+  Serial.begin(9600);
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+if(captureString() == true)
+  parseString();
+else
+  //Serial.println("nooooo");
+servo0.write(atoi(subStr1));
+servo1.write(atoi(subStr2));
+
+}
